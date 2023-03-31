@@ -1,12 +1,5 @@
 steps:
 
-  - id: config
-    name: bash
-    script: |
-      #!/usr/bin/env bash
-      echo ${_DIGEST} | cut -d@ -f2 > digest.txt
-      echo ${_DIGEST} > image.txt
-
   - id: snyk
     name: docker.io/snyk/snyk:docker
     allowExitCodes: [0, 1]
@@ -33,7 +26,7 @@ steps:
     args:
     - -c
     - |-
-      IMG_DIGEST=$(cat digest.txt)
-      BUCKET_URI="gs://${_BUCKET}/${IMG_DIGEST}/"
-      gcloud storage cp ./*.txt $BUCKET_URI
-      gcloud storage cp ./*.json $BUCKET_URI
+      echo ${_DIGEST} > digest.txt
+      bucket='gs://${_BUCKET}/$(echo ${_DIGEST} | cut -d@ -f2)/'
+      gcloud storage cp ./*.txt $bucket
+      gcloud storage cp ./*.json $bucket
