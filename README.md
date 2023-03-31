@@ -19,7 +19,7 @@ gcloud alpha builds triggers create pubsub \
     --name=scan-image \
     --topic=projects/$PROJECT_ID/topics/gcr \
     --build-config=scan-new-image.yaml \
-    --substitutions=_DIGEST_='$(body.message.data.digest)',_ACTION='$(body.message.data.action)' \
+    --substitutions=_DIGEST='$(body.message.data.digest)',_ACTION='$(body.message.data.action)',_SNYK_TOKEN=$SNYK_TOKEN \
     --subscription-filter='_ACTION == "INSERT"' \
     --repo=https://www.github.com/mchmarny/artifact-events \
     --repo-type=GITHUB \

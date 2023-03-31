@@ -1,7 +1,12 @@
 steps:
 
   - name: docker.io/anchore/grype
-    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST_}']
+    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST}']
 
   - name: docker.io/aquasec/trivy
-    args: ['image', '--format', 'json', '--output', 'trivy.json', '${_DIGEST_}']
+    args: ['image', '--format', 'json', '--output', 'trivy.json', '${_DIGEST}']
+
+  - name: docker.io/snyk/snyk:docker
+    env:
+      SNYK_TOKEN: '${_SNYK_TOKEN}'
+    args: ['container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
