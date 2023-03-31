@@ -1,15 +1,29 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+# Mac 
+.DS_Store
 
-# Test binary, built with `go test -c`
+# Test binaries
 *.test
+tmp
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Coverage
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# Binaries
+bin
+dist
+
+# Keys 
+cosign.*
+*.pem
+
+# Terraform
+*.tfstate
+*.tfvars
+*.hcl
+.terraform
+*.backup
+
+# Templates files 
+app/clouddeploy.yaml
+policy/attestor-policy.yaml
+test.json
