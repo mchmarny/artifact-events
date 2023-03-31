@@ -1,11 +1,7 @@
 steps:
 
   - name: docker.io/anchore/grype
-    args:
-    - |-
-      --scope=AllLayers
-      --output=json
-      --file=grype.json
-      ${_DIGEST_}
-
-
+    args: ['--scope', 'AllLayers', 
+           '--output', 'json', 
+           '--file', 'grype.json', 
+           '${_DIGEST_}']
