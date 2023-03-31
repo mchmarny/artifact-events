@@ -1,15 +1,13 @@
 steps:
 
   - name: docker.io/snyk/snyk:docker
-    allowFailure: true
+    allowExitCodes: [0, 1]
     args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
     env:
     - 'SNYK_TOKEN=${_SNYK_TOKEN}'
 
   - name: docker.io/anchore/grype
-    allowFailure: true
     args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST}']
 
   - name: docker.io/aquasec/trivy
-    allowFailure: true
     args: ['image', '--format', 'json', '--output', 'trivy.json', '${_DIGEST}']
