@@ -4,7 +4,7 @@ steps:
     name: bash
     script: |
       #!/usr/bin/env bash
-      echo ${_DIGEST} | cut -d@ -f2) > digest.txt
+      echo '${_DIGEST}' | cut -d@ -f2 > digest.txt
 
   - id: snyk
     name: docker.io/snyk/snyk:docker
