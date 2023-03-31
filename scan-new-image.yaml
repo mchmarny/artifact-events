@@ -1,7 +1,8 @@
 steps:
 
   - name: docker.io/anchore/grype
-    args: ['--scope', 'AllLayers', 
-           '--output', 'json', 
-           '--file', 'grype.json', 
-           '${_DIGEST_}']
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |
+      grype --scope AllLayers --output json --file grype.json ${_DIGEST_}
