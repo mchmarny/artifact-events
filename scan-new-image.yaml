@@ -1,10 +1,11 @@
 steps:
 
-  - id: digest
+  - id: config
     name: bash
     script: |
       #!/usr/bin/env bash
       echo '${_DIGEST}' | cut -d@ -f2 > digest.txt
+      echo '${_DIGEST}' > image.txt
 
   - id: snyk
     name: docker.io/snyk/snyk:docker
@@ -21,8 +22,17 @@ steps:
     name: docker.io/aquasec/trivy
     args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', '${_DIGEST}']
 
-
-
-
-
-        
+  - id: save
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    waitFor:
+    - config
+    - snyk
+    - grype
+    - trivy
+    args:
+    - -c
+    - |-
+      bucket="gs://${_BUCKET}/$(cat digest.txt)/"
+      gcloud storage cp ./*.txt $bucket
+      gcloud storage cp ./*.json $bucket
