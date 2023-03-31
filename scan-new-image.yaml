@@ -4,6 +4,10 @@ steps:
     args:
     - -c
     - |
-      grype --add-cpes-if-none -s AllLayers -o json --file grype.json ${_DIGEST_}
+      --add-cpes-if-none
+      --scope=AllLayers
+      --output=json
+      --file=grype.json
+      ${_DIGEST_}
 
 
