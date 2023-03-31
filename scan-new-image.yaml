@@ -7,6 +7,6 @@ steps:
     args: ['image', '--format', 'json', '--output', 'trivy.json', '${_DIGEST}']
 
   - name: docker.io/snyk/snyk:docker
-    args: ['container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
+    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
     env:
     - 'SNYK_TOKEN=${_SNYK_TOKEN}'
