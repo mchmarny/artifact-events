@@ -1,10 +1,9 @@
 steps:
 
-
-  - id: process
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:57b67149c067c2da42bd0464fdf20feb8883c4f3c53a30e6619e87004b101aad
-    entrypoint: /bin/bash
+  - name: docker.io/anchore/grype
     args:
     - -c
     - |
-      echo "Processing image '${_DIGEST_}'"
+      grype --add-cpes-if-none -s AllLayers -o json --file grype.json ${_DIGEST_}
+
+
