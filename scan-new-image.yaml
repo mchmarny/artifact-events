@@ -6,3 +6,16 @@ steps:
     - -c
     - |
       grype --scope AllLayers --output json --file grype.json ${_DIGEST_}
+
+  - name: docker.io/aquasec/trivy
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |
+      trivy image --format json --output trivy.json ${_DIGEST_}
+
+  - name: 'bash'
+    script: |
+      #!/usr/bin/env bash
+      echo "grype: $(cat grype.json | wc -l)"
+      echo "trivy: $(cat trivy.json | wc -l)"
