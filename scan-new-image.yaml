@@ -1,7 +1,7 @@
 steps:
 
   - name: docker.io/snyk/snyk:docker
-    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
+    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}', '&>/dev/null']
     env:
     - 'SNYK_TOKEN=${_SNYK_TOKEN}'
 
