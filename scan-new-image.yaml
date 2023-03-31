@@ -26,6 +26,6 @@ steps:
     - -c
     - |-
       echo ${_DIGEST} > digest.txt
-      sha=$(echo ${_DIGEST} | cut -d@ -f2)
+      sha=$(echo ${_DIGEST} | cut -d: -f2)
       gcloud storage cp ./*.txt gs://${_BUCKET}/$sha/
       gcloud storage cp ./*.json gs://${_BUCKET}/$sha/
