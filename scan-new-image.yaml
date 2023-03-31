@@ -2,14 +2,10 @@ steps:
 
   - name: docker.io/anchore/grype
     args:
-    - -c
-    - |-
-      version
-
-  - name: docker.io/anchore/grype
-    args:
-    - -c
-    - |-
-      --add-cpes-if-none --scope=AllLayers --output=json --file=grype.json ${_DIGEST_}
+      --add-cpes-if-none
+      --scope=AllLayers
+      --output=json
+      --file=grype.json
+      ${_DIGEST_}
 
 
