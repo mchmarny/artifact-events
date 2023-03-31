@@ -4,8 +4,8 @@ steps:
     name: bash
     script: |
       #!/usr/bin/env bash
-      echo '${_DIGEST}' | cut -d@ -f2 > digest.txt
-      echo '${_DIGEST}' > image.txt
+      echo ${_DIGEST} | cut -d@ -f2 > digest.txt
+      echo ${_DIGEST} > image.txt
 
   - id: snyk
     name: docker.io/snyk/snyk:docker
@@ -33,6 +33,7 @@ steps:
     args:
     - -c
     - |-
-      bucket="gs://${_BUCKET}/$(cat digest.txt)/"
-      gcloud storage cp ./*.txt $bucket
-      gcloud storage cp ./*.json $bucket
+      IMG_DIGEST=$(cat digest.txt)
+      BUCKET_URI="gs://${_BUCKET}/${IMG_DIGEST}/"
+      gcloud storage cp ./*.txt $BUCKET_URI
+      gcloud storage cp ./*.json $BUCKET_URI
