@@ -6,7 +6,6 @@ steps:
     args:
     - -c
     - |-
-      echo ${_DIGEST} > digest.txt
       echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
 
   - id: scan-snyk
@@ -26,6 +25,8 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-snyk.json
       gcloud storage cp snyk.json $uri
+      gcloud pubsub topics publish image-scans --message=$uri \
+        --attribute="digest=${_DIGEST},format=snyk"
 
   - id: scan-grype
     name: docker.io/anchore/grype
@@ -41,6 +42,8 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-grype.json
       gcloud storage cp grype.json $uri
+      gcloud pubsub topics publish image-scans --message=$uri \
+        --attribute="digest=${_DIGEST},format=grype"
 
   - id: scan-trivy
     name: docker.io/aquasec/trivy
@@ -56,3 +59,5 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
+      gcloud pubsub topics publish image-scans --message=$uri \
+        --attribute="digest=${_DIGEST},format=trivy"
