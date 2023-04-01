@@ -66,6 +66,35 @@ Start by creating Pub/Sub topic where the above event will be propagated:
 gcloud pubsub topics create image-scans --project $PROJECT_ID
 ```
 
+Now when the next image is published you can create a subscription to access these events:
+
+```shell
+gcloud pubsub subscriptions create image-scans-sub --project $PROJECT_ID --topic image-scans
+```
+
+To print the content of the events published by scanning step:
+
+```shell
+gcloud pubsub subscriptions pull image-scans-sub --project $PROJECT_ID --auto-ack --limit 3 \
+    --format="json(message.attributes, message.data.decode(\"base64\").decode(\"utf-8\"), message.messageId, message.publishTime)"
+```
+
+The results should look somethings like this:
+
+```json
+{
+    "message": {
+        "attributes": {
+            "digest": "us-west1-docker.pkg.dev/cloudy-demos/events/test32@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55",
+            "format": "snyk"
+        },
+        "data": "gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json",
+        "messageId": "7322343576783078",
+        "publishTime": "2023-04-01T12:05:22.125Z"
+    }
+}
+```
+
 ## disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.
