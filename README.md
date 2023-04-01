@@ -56,7 +56,15 @@ Cloud Build will automatically extract the payload (base64 encoded in the messag
 
 Using the digest, the example [scan-new-image.yaml](scan-new-image.yaml) workflow then scans the image for vulnerabilities using three open source scanners: `grype`, `snyk`, and `trivy` and saves the resulting reports to GCS bucket.
 
-I hope this example gives you an idea how you can extend the image processing capabilities already available on GCP. 
+## Processing 
+
+The above section showed how to scan new images using OSS vulnerability scanner and save them to GCS bucket. In this section we will cover the processing of these files. 
+
+Start by creating Pub/Sub topic where the above event will be propagated: 
+
+```shell
+gcloud pubsub topics create image-scans --project $PROJECT_ID
+```
 
 ## disclaimer
 

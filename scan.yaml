@@ -24,7 +24,7 @@ steps:
     args:
     - -c
     - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-snyk/
+      uri=gs://${_BUCKET}/$(cat sha.txt)-snyk.json
       gcloud storage cp snyk.json $uri
 
   - id: scan-grype
@@ -39,7 +39,7 @@ steps:
     args:
     - -c
     - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-grype/
+      uri=gs://${_BUCKET}/$(cat sha.txt)-grype.json
       gcloud storage cp grype.json $uri
 
   - id: scan-trivy
@@ -54,5 +54,5 @@ steps:
     args:
     - -c
     - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-trivy/
+      uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
