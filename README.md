@@ -26,6 +26,12 @@ gcloud alpha builds triggers create pubsub \
     --branch=main
 ```
 
+You will also have to create Pub/Sub topic where the resulting events will be propagated: 
+
+```shell
+gcloud pubsub topics create image-scans --project $PROJECT_ID
+```
+
 Now push any new image to any registry in the same project: 
 
 > Simplest way to do that is to copy an existing image using `crane` but you can also build on from scratch. Make sure to substitute your images.
@@ -56,17 +62,30 @@ Cloud Build will automatically extract the payload (base64 encoded in the messag
 
 Using the digest, the example [scan-new-image.yaml](scan-new-image.yaml) workflow then scans the image for vulnerabilities using three open source scanners: `grype`, `snyk`, and `trivy` and saves the resulting reports to GCS bucket.
 
-## Processing 
+## Report Processing
 
-The above section showed how to scan new images using OSS vulnerability scanner and save them to GCS bucket. In this section we will cover the processing of these files. 
+The above section showed how to scan new images using OSS vulnerability scanner and save them to GCS bucket. That step also publishes the data about the image and the resulting file onto a Pub/Sub topic. In this section we will cover the processing of these events.
 
-Start by creating Pub/Sub topic where the above event will be propagated: 
+Start by creating another trigger:
 
 ```shell
-gcloud pubsub topics create image-scans --project $PROJECT_ID
+gcloud alpha builds triggers create pubsub \
+    --project=$PROJECT_ID \
+    --region=$REGION \
+    --name=process-image \
+    --topic=projects/$PROJECT_ID/topics/image-scans \
+    --build-config=process.yaml \
+    --substitutions=_REPORT='$(body.message.data)',_DIGEST='$(body.message.attributes.digest)',_FORMAT='$(body.message.attributes.digest) \
+    --subscription-filter='_ACTION == "INSERT"' \
+    --repo=https://www.github.com/$GITHUB_USER/artifact-events \
+    --repo-type=GITHUB \
+    --branch=main
 ```
 
-Now when the next image is published you can create a subscription to access these events:
+
+
+
+First, Now when the next image is published you can create a subscription to access these events:
 
 ```shell
 gcloud pubsub subscriptions create image-scans-sub --project $PROJECT_ID --topic image-scans
