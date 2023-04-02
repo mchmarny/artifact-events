@@ -39,6 +39,6 @@ steps:
     - |-
       bq load \
         --source_format=CSV \
+        --autodetect \
         ${_DATASET} \
-        ./data.csv \
-        image:STRING,digest:STRING,source:STRING,processed:TIMESTAMP,cve:STRING,package:STRING,version:STRING,severity:STRING,score:FLOAT,fixed:BOOLEAN
+        ./data.csv
