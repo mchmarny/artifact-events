@@ -14,11 +14,11 @@ steps:
     args:
     - -c
     - |-
-      vulctl --flat \
-             --source ${_DIGEST} \
+      vulctl --source ${_DIGEST} \
              --file ./report.json \
              --format ${_FORMAT} \
-             --output ./data.json
+             --output ./data.csv \
+             --csv
 
   - id: save
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -27,6 +27,6 @@ steps:
     - -c
     - |-
       sha=$(echo ${_DIGEST} | cut -d: -f2)
-      uri=gs://${_BUCKET}/$sha-${_FORMAT}.json
+      uri=gs://${_BUCKET}/$sha-${_FORMAT}.csv
       echo "saving data to $uri"
-      gcloud storage cp ./data.json $uri
+      gcloud storage cp ./data.csv $uri
