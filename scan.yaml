@@ -8,14 +8,20 @@ steps:
     - -c
     - |-
       uri=${_DIGEST}
+      echo "processing $uri"
       if [[ "${uri}" != *"@"* ]];then
-         uri=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
+        echo "resolving $uri to digest"
+        uri=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
       fi
+      echo "resolved to $uri"
       echo ${uri} > digest.txt
       echo $(echo ${uri} | cut -d: -f2) > sha.txt
 
+  # snyk
   - id: scan-snyk
     name: docker.io/snyk/snyk:docker
+    waitFor:
+    - config
     allowExitCodes: [0, 1]
     args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', $(cat digest.txt)]
     env:
@@ -25,6 +31,7 @@ steps:
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: /bin/bash
     waitFor:
+    - config
     - scan-snyk
     args:
     - -c
@@ -34,14 +41,18 @@ steps:
       gcloud pubsub topics publish image-scans --message=${_DIGEST} \
         --attribute="file=$uri,format=snyk"
 
+  # grype
   - id: scan-grype
     name: docker.io/anchore/grype
+    waitFor:
+    - config
     args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', $(cat digest.txt)]
 
   - id: save-grype
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: /bin/bash
     waitFor:
+    - config
     - scan-grype
     args:
     - -c
@@ -51,14 +62,18 @@ steps:
       gcloud pubsub topics publish image-scans --message=${_DIGEST} \
         --attribute="file=$uri,format=grype"
 
+  # trivy
   - id: scan-trivy
     name: docker.io/aquasec/trivy
+    waitFor:
+    - config
     args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', $(cat digest.txt)]
 
   - id: save-trivy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: /bin/bash
     waitFor:
+    - config
     - scan-trivy
     args:
     - -c
