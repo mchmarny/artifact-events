@@ -66,7 +66,36 @@ Using the digest, the example [scan-new-image.yaml](scan-new-image.yaml) workflo
 
 The above section showed how to scan new images using OSS vulnerability scanner and save them to GCS bucket. That step also publishes the data about the image and the resulting file onto a Pub/Sub topic. In this section we will cover the processing of these events.
 
-Start by creating another trigger:
+These events will look somethings like this:
+
+```json
+{
+    "message": {
+        "attributes": {
+            "file": "gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-grype.json",
+            "format": "grype"
+        },
+        "data": "us-west1-docker.pkg.dev/cloudy-demos/events/test33@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55",
+        "messageId": "7329185432545049",
+        "publishTime": "2023-04-02T12:22:08.464Z"
+    }
+}
+```
+
+If you want, you can look at these events by creating a pub/sub subscription to access these events:
+
+```shell
+gcloud pubsub subscriptions create image-scans-sub --project $PROJECT_ID --topic image-scans
+```
+
+And then printing the content of these events like this:
+
+```shell
+gcloud pubsub subscriptions pull image-scans-sub --project $PROJECT_ID --auto-ack --limit 3 \
+    --format="json(message.attributes, message.data.decode(\"base64\").decode(\"utf-8\"), message.messageId, message.publishTime)"
+```
+
+GCB though will create its own subscription when we create trigger to process these events:
 
 ```shell
 gcloud alpha builds triggers create pubsub \
@@ -75,43 +104,10 @@ gcloud alpha builds triggers create pubsub \
     --name=process-image \
     --topic=projects/$PROJECT_ID/topics/image-scans \
     --build-config=process.yaml \
-    --substitutions=_REPORT='$(body.message.data)',_DIGEST='$(body.message.attributes.digest)',_FORMAT='$(body.message.attributes.digest) \
-    --subscription-filter='_ACTION == "INSERT"' \
+    --substitutions=_DIGEST='$(body.message.data)',_REPORT='$(body.message.attributes.file)',_FORMAT='$(body.message.attributes.format) \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
-```
-
-
-
-
-First, Now when the next image is published you can create a subscription to access these events:
-
-```shell
-gcloud pubsub subscriptions create image-scans-sub --project $PROJECT_ID --topic image-scans
-```
-
-To print the content of the events published by scanning step:
-
-```shell
-gcloud pubsub subscriptions pull image-scans-sub --project $PROJECT_ID --auto-ack --limit 3 \
-    --format="json(message.attributes, message.data.decode(\"base64\").decode(\"utf-8\"), message.messageId, message.publishTime)"
-```
-
-The results should look somethings like this:
-
-```json
-{
-    "message": {
-        "attributes": {
-            "digest": "us-west1-docker.pkg.dev/cloudy-demos/events/test32@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55",
-            "format": "snyk"
-        },
-        "data": "gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json",
-        "messageId": "7322343576783078",
-        "publishTime": "2023-04-01T12:05:22.125Z"
-    }
-}
 ```
 
 ## disclaimer

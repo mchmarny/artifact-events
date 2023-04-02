@@ -1,63 +1,19 @@
 steps:
 
-  - id: cofig
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    args:
-    - -c
-    - |-
-      echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
+  - id: debug
+    name: bash
+    script: |
+      #!/usr/bin/env bash
+      echo "digest: ${_DIGEST}"
+      echo "report: ${_REPORT}"
+      echo "format: ${_FORMAT}"
 
-  - id: scan-snyk
-    name: docker.io/snyk/snyk:docker
-    allowExitCodes: [0, 1]
-    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
-    env:
-    - 'SNYK_TOKEN=${_SNYK_TOKEN}'
+  - id: process
+    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
+    args: ['--source', '${_DIGEST}', '--file', '${_REPORT}', '--format', '${_FORMAT}', '--output', 'data.json']
 
-  - id: save-snyk
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    waitFor:
-    - scan-snyk
-    args:
-    - -c
-    - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-snyk.json
-      gcloud storage cp snyk.json $uri
-      gcloud pubsub topics publish image-scans --message=$uri \
-        --attribute="digest=${_DIGEST},format=snyk"
-
-  - id: scan-grype
-    name: docker.io/anchore/grype
-    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST}']
-
-  - id: save-grype
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    waitFor:
-    - scan-grype
-    args:
-    - -c
-    - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-grype.json
-      gcloud storage cp grype.json $uri
-      gcloud pubsub topics publish image-scans --message=$uri \
-        --attribute="digest=${_DIGEST},format=grype"
-
-  - id: scan-trivy
-    name: docker.io/aquasec/trivy
-    args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', '${_DIGEST}']
-
-  - id: save-trivy
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    waitFor:
-    - scan-trivy
-    args:
-    - -c
-    - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
-      gcloud storage cp trivy.json $uri
-      gcloud pubsub topics publish image-scans --message=$uri \
-        --attribute="digest=${_DIGEST},format=trivy"
+  - id: print
+    name: bash
+    script: |
+      #!/usr/bin/env bash
+      cat data.json
