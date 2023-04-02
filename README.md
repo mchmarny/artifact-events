@@ -116,6 +116,8 @@ To test the flow you can publish to the topic directly:
 gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55" --attribute="file=gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json,format=snyk" --project=$PROJECT_ID
 ```
 
+When completed, the data will be loaded into the BigQuery dataset set in the trigger (e.g. `dataset.table`).
+
 ## disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.
