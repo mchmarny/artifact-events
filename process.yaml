@@ -12,7 +12,7 @@ steps:
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
     args:
     - |-
-      --source ${_DIGEST} --file ./report.json --format ${_FORMAT} --output ./data.json
+      -source ${_DIGEST} -file ./report.json -format ${_FORMAT} -output ./data.json
 
   - id: print
     waitFor:
