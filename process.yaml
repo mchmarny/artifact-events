@@ -1,8 +1,6 @@
 steps:
 
   - id: test
-    waitFor:
-    - download
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
     args: ['--version']
 
