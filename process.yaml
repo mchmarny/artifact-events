@@ -2,7 +2,11 @@ steps:
 
   - id: test
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
-    args: ['--version']
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      /vulctl --version
 
   # - id: download
   #   name: gcr.io/google.com/cloudsdktool/cloud-sdk
