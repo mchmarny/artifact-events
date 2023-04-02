@@ -20,11 +20,12 @@ steps:
              --format ${_FORMAT} \
              --output ./data.json
 
-  - id: print
-    waitFor:
-    - process
-    name: cgr.dev/chainguard/bash
+  - id: save
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
     args:
     - -c
     - |-
-      cat ./data.json
+      sha=$(echo ${_DIGEST} | cut -d: -f2)
+      uri=gs://${_BUCKET}/$sha-${_FORMAT}.json
+      gcloud storage ./data.json $uri
