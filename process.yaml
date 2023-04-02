@@ -41,4 +41,4 @@ steps:
         --source_format=CSV \
         ${_DATASET} \
         ./data.csv \
-        image:STRING,digest:STRING,processed:TIMESTAMP,cve:STRING,package:STRING,version:STRING,severity:STRING,score:FLOAT,fixed:BOOLEAN
+        image:STRING,digest:STRING,source:STRING,processed:TIMESTAMP,cve:STRING,package:STRING,version:STRING,severity:STRING,score:FLOAT,fixed:BOOLEAN

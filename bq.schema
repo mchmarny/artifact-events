@@ -10,6 +10,11 @@
         "mode": "REQUIRED"
     },
     {
+        "name": "source",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
         "name": "processed",
         "type": "TIMESTAMP",
         "mode": "REQUIRED"
