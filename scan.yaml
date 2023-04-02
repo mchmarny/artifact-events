@@ -9,7 +9,8 @@ steps:
     - |-
       echo "processing ${_DIGEST}"
       if [[ "${_DIGEST}" != *"@"* ]];then
-         exit 1
+        echo "ERROR: image ${_DIGEST} doesn't digest"
+        exit 1
       fi
       echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
 
