@@ -1,7 +1,10 @@
 steps:
 
-  - id: test
-    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
+  - id: test1
+    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl@sha256:4db8421c6964703af05d3e3355e8c83e67ad6deb409563b0a3c4210aa0aad0cc
+
+  - id: test2
+    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl@sha256:4db8421c6964703af05d3e3355e8c83e67ad6deb409563b0a3c4210aa0aad0cc
     args: ['--version']
 
   # - id: download
