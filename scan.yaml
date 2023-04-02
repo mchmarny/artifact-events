@@ -2,17 +2,15 @@ steps:
 
   # If the image is not passed by digest, we need to resolve it to a digest
   - id: config
-    name: gcr.io/cloud-builders/docker
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: /bin/bash
     args:
     - -c
     - |-
       echo "processing ${_DIGEST}"
       if [[ "${_DIGEST}" != *"@"* ]];then
-        echo "resolving ${_DIGEST} to digest"
-        _DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
+         exit 1
       fi
-      echo "resolved to $_DIGEST"
       echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
 
   # snyk
