@@ -113,7 +113,7 @@ gcloud alpha builds triggers create pubsub \
 To test the flow you can publish to the topic directly:
 
 ```shell
-gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55" --attribute="file=gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json,format=snyk"
+gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55" --attribute="file=gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json,format=snyk" --project=$PROJECT_ID
 ```
 
 ## disclaimer
