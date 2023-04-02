@@ -1,7 +1,7 @@
 steps:
 
   # If the image is not passed by digest, we need to resolve it to a digest
-  - id: cofig
+  - id: config
     name: gcr.io/cloud-builders/docker
     entrypoint: /bin/bash
     args:
