@@ -30,3 +30,16 @@ steps:
       uri=gs://${_BUCKET}/$sha-${_FORMAT}.csv
       echo "saving data to $uri"
       gcloud storage cp ./data.csv $uri
+
+  - id: load
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      gcloud components install bq
+      bq load \
+        --source_format=CSV \
+        ${_DATASET} \
+        ./data.csv \
+        image:STRING,digest:STRING,processed:TIMESTAMP,cve:STRING,package:STRING,version:STRING,severity:STRING,score:FLOAT,fixed:BOOLEAN

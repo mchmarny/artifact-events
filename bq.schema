@@ -1,0 +1,47 @@
+[
+    {
+        "name": "image",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "digest",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "processed",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cve",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "package",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "version",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "severity",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "score",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "fixed",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    }
+]
