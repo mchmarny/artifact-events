@@ -7,15 +7,13 @@ steps:
     args:
     - -c
     - |-
-      uri=${_DIGEST}
-      echo "processing $uri"
-      if [[ "${uri}" != *"@"* ]];then
-        echo "resolving $uri to digest"
-        uri=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
+      echo "processing ${_DIGEST}"
+      if [[ "${_DIGEST}" != *"@"* ]];then
+        echo "resolving ${_DIGEST} to digest"
+        _DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
       fi
-      echo "resolved to $uri"
-      echo ${uri} > digest.txt
-      echo $(echo ${uri} | cut -d: -f2) > sha.txt
+      echo "resolved to $_DIGEST"
+      echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
 
   # snyk
   - id: scan-snyk
@@ -23,7 +21,7 @@ steps:
     waitFor:
     - config
     allowExitCodes: [0, 1]
-    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', $(cat digest.txt)]
+    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
     env:
     - 'SNYK_TOKEN=${_SNYK_TOKEN}'
 
@@ -46,7 +44,7 @@ steps:
     name: docker.io/anchore/grype
     waitFor:
     - config
-    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', $(cat digest.txt)]
+    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST}']
 
   - id: save-grype
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -67,7 +65,7 @@ steps:
     name: docker.io/aquasec/trivy
     waitFor:
     - config
-    args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', $(cat digest.txt)]
+    args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', '${_DIGEST}']
 
   - id: save-trivy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -80,5 +78,5 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
-      gcloud pubsub topics publish image-scans --message=$(cat digest.txt) \
+      gcloud pubsub topics publish image-scans --message=${_DIGEST} \
         --attribute="file=$uri,format=trivy"
