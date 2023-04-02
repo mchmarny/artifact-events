@@ -37,7 +37,6 @@ steps:
     args:
     - -c
     - |-
-      gcloud components install bq
       bq load \
         --source_format=CSV \
         ${_DATASET} \
