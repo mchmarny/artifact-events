@@ -14,10 +14,10 @@ steps:
     args:
     - -c
     - |-
-      vulctl --flat
-             --source ${_DIGEST}
-             --file ./report.json
-             --format ${_FORMAT}
+      vulctl --flat \
+             --source ${_DIGEST} \
+             --file ./report.json \
+             --format ${_FORMAT} \
              --output ./data.json
 
   - id: print
