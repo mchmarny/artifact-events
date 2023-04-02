@@ -8,6 +8,12 @@ steps:
     - |-
       gcloud storage cp ${_REPORT} report.json
 
+  - id: test
+    waitFor:
+    - download
+    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
+    args: ['--version']
+
   - id: process
     waitFor:
     - download
