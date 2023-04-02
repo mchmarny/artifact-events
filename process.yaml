@@ -39,6 +39,6 @@ steps:
     - |-
       bq load \
         --source_format=CSV \
-        --autodetect \
         ${_DATASET} \
-        ./data.csv
+        ./data.csv \
+        ./schema.json
