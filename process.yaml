@@ -12,7 +12,6 @@ steps:
     waitFor:
     - download
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
-    entrypoint: /bin/bash
     args:
     - -c
     - |-
@@ -22,7 +21,6 @@ steps:
     waitFor:
     - process
     name: cgr.dev/chainguard/bash
-    entrypoint: /bin/bash
     args:
     - -c
     - |-

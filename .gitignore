@@ -23,3 +23,5 @@ cosign.*
 .terraform
 *.backup
 
+# JSON 
+*.json
