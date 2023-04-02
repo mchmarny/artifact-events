@@ -28,4 +28,5 @@ steps:
     - |-
       sha=$(echo ${_DIGEST} | cut -d: -f2)
       uri=gs://${_BUCKET}/$sha-${_FORMAT}.json
-      gcloud storage ./data.json $uri
+      echo "saving data to $uri"
+      gcloud storage cp ./data.json $uri
