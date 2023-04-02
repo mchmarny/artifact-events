@@ -13,7 +13,6 @@ steps:
     - download
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
     args:
-    - -c
     - |-
       vulctl --source ${_DIGEST} --file report.json --format ${_FORMAT} --output ./data.json
 
