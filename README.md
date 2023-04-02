@@ -2,7 +2,7 @@
 
 Collection of Google Container and Artifact Registry workflows 
 
-## New GCR or AR image 
+## New GCR or AR images 
 
 First, make sure there are GitHub connections (if not, this step will need to be created in UI):
 
@@ -16,7 +16,7 @@ Next, create a pub/sub trigger using the [provided  build configurations file](s
 gcloud alpha builds triggers create pubsub \
     --project=$PROJECT_ID \
     --region=$REGION \
-    --name=scan-image \
+    --name=scan-registry-image \
     --topic=projects/$PROJECT_ID/topics/gcr \
     --build-config=scan.yaml \
     --substitutions=_DIGEST='$(body.message.data.digest)',_ACTION='$(body.message.data.action)',_SNYK_TOKEN=$SNYK_TOKEN,_BUCKET=$BUCKET \
@@ -117,6 +117,40 @@ gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/clou
 ```
 
 When completed, the data will be loaded into the BigQuery dataset set in the trigger (e.g. `dataset.table`).
+
+## External Images 
+
+In addition to the images from GCR and AR, you can also process other images as long as they are either public or accessible to the CGB service account. 
+
+Start by creating the image queue topic: 
+
+```shell
+gcloud pubsub topics create image-queue --project $PROJECT_ID
+```
+
+Next create a trigger to process any new events on that queue with the same build config as above: 
+
+```shell
+gcloud alpha builds triggers create pubsub \
+    --project=$PROJECT_ID \
+    --region=$REGION \
+    --name=scan-queue-image \
+    --topic=projects/$PROJECT_ID/topics/image-queue \
+    --build-config=scan.yaml \
+    --substitutions=_DIGEST='$(body.message.data)',_SNYK_TOKEN=$SNYK_TOKEN,_BUCKET=$BUCKET \
+    --repo=https://www.github.com/$GITHUB_USER/artifact-events \
+    --repo-type=GITHUB \
+    --branch=main
+```
+
+Now to process new image simply publish an image URI to that topic:
+
+```shell
+gcloud pubsub topics publish image-queue \
+    --message=us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55 \
+    --project=$PROJECT_ID
+```
+
 
 ## disclaimer
 

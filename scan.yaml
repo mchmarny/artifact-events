@@ -1,17 +1,23 @@
 steps:
 
+  # If the image is not passed by digest, we need to resolve it to a digest
   - id: cofig
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    name: gcr.io/cloud-builders/docker
     entrypoint: /bin/bash
     args:
     - -c
     - |-
-      echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
+      uri=${_DIGEST}
+      if [[ "${uri}" != *"@"* ]];then
+         uri=$(docker inspect --format='{{index .RepoDigests 0}}' ${_DIGEST}) 
+      fi
+      echo ${uri} > digest.txt
+      echo $(echo ${uri} | cut -d: -f2) > sha.txt
 
   - id: scan-snyk
     name: docker.io/snyk/snyk:docker
     allowExitCodes: [0, 1]
-    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
+    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', $(cat digest.txt)]
     env:
     - 'SNYK_TOKEN=${_SNYK_TOKEN}'
 
@@ -30,7 +36,7 @@ steps:
 
   - id: scan-grype
     name: docker.io/anchore/grype
-    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', '${_DIGEST}']
+    args: ['-s', 'AllLayers', '-o', 'json', '--file', 'grype.json', $(cat digest.txt)]
 
   - id: save-grype
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -47,7 +53,7 @@ steps:
 
   - id: scan-trivy
     name: docker.io/aquasec/trivy
-    args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', '${_DIGEST}']
+    args: ['image', '--format', 'json', '--scanners', 'vuln', '--output', 'trivy.json', $(cat digest.txt)]
 
   - id: save-trivy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -59,5 +65,5 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} \
+      gcloud pubsub topics publish image-scans --message=$(cat digest.txt) \
         --attribute="file=$uri,format=trivy"
