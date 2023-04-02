@@ -1,18 +1,22 @@
 steps:
 
-  - id: debug
-    name: bash
-    script: |
-      #!/usr/bin/env bash
-      echo "digest: ${_DIGEST}"
-      echo "report: ${_REPORT}"
-      echo "format: ${_FORMAT}"
+  - id: download
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      gcloud storage cp ${_REPORT} report.json
 
   - id: process
+    waitFor:
+    - download
     name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
-    args: ['--source', '${_DIGEST}', '--file', '${_REPORT}', '--format', '${_FORMAT}', '--output', 'data.json']
+    args: ['--source', '${_DIGEST}', '--file', 'report.json', '--format', '${_FORMAT}', '--output', 'data.json']
 
   - id: print
+    waitFor:
+    - process
     name: bash
     script: |
       #!/usr/bin/env bash

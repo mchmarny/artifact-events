@@ -104,7 +104,7 @@ gcloud alpha builds triggers create pubsub \
     --name=process-image \
     --topic=projects/$PROJECT_ID/topics/image-scans \
     --build-config=process.yaml \
-    --substitutions=_DIGEST='$(body.message.data)',_REPORT='$(body.message.attributes.file)',_FORMAT='$(body.message.attributes.format) \
+    --substitutions=_DIGEST='$(body.message.data)',_REPORT='$(body.message.attributes.file)',_FORMAT='$(body.message.attributes.format)' \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
