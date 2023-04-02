@@ -1,12 +1,9 @@
 steps:
 
-  - id: test1
-    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl@sha256:d5fba177b672a9dbc3397f0ed644c9fedaf80fc2d034fd4255ce3e68a4e96794
-    args: ['echo', 'test']
-
-  - id: test2
-    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl@sha256:d5fba177b672a9dbc3397f0ed644c9fedaf80fc2d034fd4255ce3e68a4e96794
-    args: ['vulctl', '--version']
+  - id: test
+    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
+    entrypoint: /bin/vulctl
+    args: ['--version']
 
   # - id: download
   #   name: gcr.io/google.com/cloudsdktool/cloud-sdk
