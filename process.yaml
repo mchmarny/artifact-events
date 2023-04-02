@@ -14,7 +14,11 @@ steps:
     args:
     - -c
     - |-
-      vulctl --source ${_DIGEST} --file ./report.json --format ${_FORMAT} --output ./data.json
+      vulctl --flat \
+             --source ${_DIGEST} \
+             --file ./report.json \
+             --format ${_FORMAT} \
+             --output ./data.json
 
   - id: print
     waitFor:
