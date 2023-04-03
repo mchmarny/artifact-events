@@ -1,0 +1,11 @@
+steps:
+
+  - id: spool
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      while read img; do
+        echo "queueing image: $img"
+      done < images.txt

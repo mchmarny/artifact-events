@@ -151,6 +151,25 @@ gcloud pubsub topics publish image-queue \
     --project=$PROJECT_ID
 ```
 
+## Static Images
+
+You can also process static set of images defined in local list ([images.txt](images.txt)). 
+
+To invoke that job on schedule, first, create a trigger: 
+
+```shell
+gcloud alpha builds triggers create webhook \
+    --project=$PROJECT_ID \
+    --region=$REGION \
+    --name=queue-static-images \
+    --build-config=queue.yaml \
+    --secret=$WEBHOOK_SECRET \
+    --repo=https://www.github.com/$GITHUB_USER/artifact-events \
+    --repo-type=GITHUB \
+    --branch=main
+```
+
+
 
 ## disclaimer
 

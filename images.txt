@@ -1,0 +1,3 @@
+redis
+bitnami/postgresql
+gcr.io/google-containers/nginx
