@@ -151,19 +151,18 @@ gcloud pubsub topics publish image-queue \
     --project=$PROJECT_ID
 ```
 
-## Static Images
+## On Demand
 
-You can also process static set of images defined in local list ([images.txt](images.txt)). 
-
-To invoke that job on schedule, first, create a trigger: 
+You can also process images on-demand using GCB WebHooks. First, create a trigger: 
 
 ```shell
 gcloud alpha builds triggers create webhook \
     --project=$PROJECT_ID \
     --region=$REGION \
-    --name=queue-static-images \
+    --name=queue-image \
     --build-config=queue.yaml \
-    --secret=projects/799736955886/secrets/artifact-event/versions/1 \
+    --substitutions=_IMAGE='$(body.message.image)' \
+    --secret=projects/799736955886/secrets/artifact-event/versions/2 \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
@@ -174,8 +173,11 @@ gcloud alpha builds triggers create webhook \
 You can run this manually in the console or by invoking the webhook. 
 
 ```shell
-https://cloudbuild.googleapis.com/v1/projects/$PROJECT_ID/triggers/queue-static-images:webhook?key=$KEY&secret=$SECRET
+curl -H "Content-Type: application/json" \
+     -d '{"image":"redis"}' \
+     "https://cloudbuild.googleapis.com/v1/projects/cloudy-demos/triggers/queue-static-images:webhook?key=AIzaSyCH391OCSovOP-kmkr68Ah0aQzdmiGzQr8&secret=aN3NT7uwmWgLq3wUCe"
 ```
+
 
 ## disclaimer
 

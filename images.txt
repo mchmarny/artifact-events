@@ -1,3 +1,0 @@
-redis
-snyk/snyk:docker
-docker.io/anchore/grype

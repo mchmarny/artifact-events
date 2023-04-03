@@ -16,12 +16,10 @@ steps:
     args:
     - -c
     - |-
-      while read img; do
-        echo "queueing: $img"
-        digest=$(docker inspect --format='{{index .RepoDigests 0}}' $img)
-        if test -z "$digest"; then
-          echo "ERROR: can't get digest for $img"
-          continue
-        fi
-        echo "image: $img, digest: $digest"
-      done < images.txt
+      echo "image: ${_IMAGE}"
+      digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${_IMAGE})
+      if test -z "$digest"; then
+        echo "ERROR: can't get digest for $img"
+        exit 1
+      fi
+      echo "digest: $digest"
