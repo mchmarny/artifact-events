@@ -175,7 +175,7 @@ You can run this manually in the console or by invoking the webhook.
 ```shell
 curl -H "Content-Type: application/json" \
      -d '{"image":"redis"}' \
-     "https://cloudbuild.googleapis.com/v1/projects/cloudy-demos/triggers/queue-static-images:webhook?key=AIzaSyCH391OCSovOP-kmkr68Ah0aQzdmiGzQr8&secret=aN3NT7uwmWgLq3wUCe"
+     "https://cloudbuild.googleapis.com/v1/projects/cloudy-demos/triggers/queue-static-images:webhook?key=$KEY"
 ```
 
 
