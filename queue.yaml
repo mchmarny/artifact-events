@@ -23,8 +23,12 @@ steps:
         echo "ERROR: can't get digest for $img"
         exit 1
       fi
-      echo "digest: $digest"
-      echo $digest > digest.txt
+      echo "parsed digest: $digest"
+      uri=$(echo ${_IMAGE} | cut -d: -f1)
+      digest=$(echo $digest | cut -d@ -f2)
+      uri="${uri}@${digest}"
+      echo "parsed image uri: $uri"
+      echo $uri > uri.txt
 
   - id: publish
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
@@ -32,4 +36,4 @@ steps:
     args:
     - -c
     - |-
-      gcloud pubsub topics publish image-queue --message=$(cat digest.txt)
+      gcloud pubsub topics publish image-queue --message=$(cat uri.txt)
