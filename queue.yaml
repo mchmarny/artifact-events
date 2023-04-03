@@ -1,17 +1,27 @@
 steps:
 
-  - id: spool
-    name: gcr.io/cloud-builders/docker
+  - id: config
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: /bin/bash
     args:
     - -c
     - |-
       gcloud auth configure-docker
+
+  - id: spool
+    name: gcr.io/cloud-builders/docker
+    waitFor:
+    - config
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
       while read img; do
+        echo "queueing: $img"
         digest=$(docker inspect --format='{{index .RepoDigests 0}}' $img)
         if test -z "$digest"; then
           echo "ERROR: can't get digest for $img"
           continue
         fi
-        echo "queueing image: $img, digest: $digest"
+        echo "image: $img, digest: $digest"
       done < images.txt

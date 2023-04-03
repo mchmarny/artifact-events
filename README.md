@@ -171,6 +171,12 @@ gcloud alpha builds triggers create webhook \
 
 > make sure the secret is accessible to `service-$PROJECT_NUMBER@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 
+You can run this manually in the console or by invoking the webhook. 
+
+```shell
+https://cloudbuild.googleapis.com/v1/projects/$PROJECT_ID/triggers/queue-static-images:webhook?key=$KEY&secret=$SECRET
+```
+
 ## disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.
