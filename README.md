@@ -162,7 +162,7 @@ gcloud alpha builds triggers create webhook \
     --name=queue-image \
     --build-config=queue.yaml \
     --substitutions=_IMAGE='$(body.image)' \
-    --secret=projects/799736955886/secrets/artifact-event/versions/2 \
+    --secret=projects/799736955886/secrets/artifact-event/versions/3 \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
@@ -176,7 +176,6 @@ You can run this manually in the console or by invoking the webhook.
 curl -X POST -H Content-Type:application/json -d '{"image": "redis"}' \
      "https://cloudbuild.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/triggers/queue-image:webhook?key=$KEY&secret=$SECRET&trigger=queue-image&projectId=$PROJECT_ID"
 ```
-
 
 ## disclaimer
 
