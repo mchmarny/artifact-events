@@ -6,15 +6,31 @@ SELECT DISTINCT digest
 FROM `cloudy-demos.artifact.vul`
 WHERE image = 'https://us-west1-docker.pkg.dev/cloudy-demos/events/test46'
 
+
 -- list vulnerabilities for a given image
 SELECT
     cve,
     source,
-    MAX(processed) last_processed,
     severity,
-    score
+    score,
+    MAX(processed) last_processed
 FROM `cloudy-demos.artifact.vul`
 WHERE image = 'https://us-west1-docker.pkg.dev/cloudy-demos/events/test46'
 AND digest = 'sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55'
 GROUP BY cve, source, severity, score
 ORDER BY 1, 2
+
+-- list packages for a given image cve
+SELECT
+    source,
+    package,
+    version,
+    severity,
+    score,
+    MAX(processed) last_processed
+FROM `cloudy-demos.artifact.vul`
+WHERE image = 'https://us-west1-docker.pkg.dev/cloudy-demos/events/test46'
+AND digest = 'sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55'
+AND cve = 'CVE-2009-5155'
+GROUP BY source, package, version, severity, score
+ORDER BY 1, 2, 3
