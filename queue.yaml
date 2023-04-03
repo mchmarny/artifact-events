@@ -8,7 +8,7 @@ steps:
     - |-
       gcloud auth configure-docker
 
-  - id: spool
+  - id: parse
     name: gcr.io/cloud-builders/docker
     waitFor:
     - config
@@ -24,3 +24,12 @@ steps:
         exit 1
       fi
       echo "digest: $digest"
+      echo $digest > digest.txt
+
+  - id: publish
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      gcloud pubsub topics publish image-queue --message=$(cat digest.txt)

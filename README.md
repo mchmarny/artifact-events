@@ -173,7 +173,7 @@ gcloud alpha builds triggers create webhook \
 You can run this manually in the console or by invoking the webhook. 
 
 ```shell
-curl -X POST -H Content-Type:application/json -d '{"image": "redis"}' \
+curl -X POST -H Content-Type:application/json -d '{"image": "docker.io/redis"}' \
      "https://cloudbuild.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/triggers/queue-image:webhook?key=$KEY&secret=$SECRET&trigger=queue-image&projectId=$PROJECT_ID"
 ```
 
