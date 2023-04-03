@@ -24,6 +24,8 @@ steps:
         exit 1
       fi
       echo "parsed digest: $digest"
+      # docker returns only the image name and digest
+      # need to add the registry to the image name together to ensure a valid URI
       uri=$(echo ${_IMAGE} | cut -d: -f1)
       digest=$(echo $digest | cut -d@ -f2)
       uri="${uri}@${digest}"
