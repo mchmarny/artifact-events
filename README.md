@@ -163,13 +163,13 @@ gcloud alpha builds triggers create webhook \
     --region=$REGION \
     --name=queue-static-images \
     --build-config=queue.yaml \
-    --secret=$WEBHOOK_SECRET \
+    --secret=projects/799736955886/secrets/artifact-event/versions/1 \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
 ```
 
-
+> make sure the secret is accessible to `service-$PROJECT_NUMBER@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 
 ## disclaimer
 
