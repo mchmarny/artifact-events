@@ -35,8 +35,7 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-snyk.json
       gcloud storage cp snyk.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} \
-        --attribute="file=$uri,format=snyk"
+      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"
 
   # grype
   - id: scan-grype
@@ -56,8 +55,7 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-grype.json
       gcloud storage cp grype.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} \
-        --attribute="file=$uri,format=grype"
+      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"
 
   # trivy
   - id: scan-trivy
@@ -77,5 +75,4 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} \
-        --attribute="file=$uri,format=trivy"
+      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"

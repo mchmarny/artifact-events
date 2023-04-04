@@ -72,8 +72,7 @@ These events will look somethings like this:
 {
     "message": {
         "attributes": {
-            "file": "gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-grype.json",
-            "format": "grype"
+            "file": "gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-grype.json"
         },
         "data": "us-west1-docker.pkg.dev/cloudy-demos/events/test33@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55",
         "messageId": "7329185432545049",
@@ -104,7 +103,7 @@ gcloud alpha builds triggers create pubsub \
     --name=process-image \
     --topic=projects/$PROJECT_ID/topics/image-scans \
     --build-config=process.yaml \
-    --substitutions=_DIGEST='$(body.message.data)',_REPORT='$(body.message.attributes.file)',_FORMAT='$(body.message.attributes.format)',_BUCKET=$BUCKET,_DATASET=$DATASET \
+    --substitutions=_DIGEST='$(body.message.data)',_REPORT='$(body.message.attributes.file)',_BUCKET=$BUCKET,_DATASET=$DATASET \
     --repo=https://www.github.com/$GITHUB_USER/artifact-events \
     --repo-type=GITHUB \
     --branch=main
@@ -113,7 +112,7 @@ gcloud alpha builds triggers create pubsub \
 To test the flow you can publish to the topic directly:
 
 ```shell
-gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55" --attribute="file=gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json,format=snyk" --project=$PROJECT_ID
+gcloud pubsub topics publish image-scans --message="us-west1-docker.pkg.dev/cloudy-demos/events/test38@sha256:14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55" --attribute="file=gs://artifact-events/14dd03939d2d840d7375f394b45d340d95fba8e25070612ac2883eacd7f93a55-snyk.json" --project=$PROJECT_ID
 ```
 
 When completed, the data will be loaded into the BigQuery dataset set in the trigger (e.g. `dataset.table`).
