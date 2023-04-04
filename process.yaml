@@ -5,13 +5,13 @@ steps:
     entrypoint: /bin/bash
     args:
     - -c
-    - |-
+    - |
       gcloud storage cp ${_REPORT} ./report.json
 
   - id: process
     name: us-docker.pkg.dev/cloudy-tools/builders/vimp
     args:
-    - |-
+    - |
       --source
       ${_DIGEST}
       --file
