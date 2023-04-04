@@ -8,8 +8,9 @@ steps:
     - |
       gcloud storage cp ${_REPORT} ./report.json
 
-  - id: process
-    name: us-docker.pkg.dev/cloudy-tools/builders/vimp
+  - name: us-docker.pkg.dev/cloudy-tools/builders/vimp
+    wait_for:
+    - download
     args:
     - --source=${_DIGEST}
     - --file=./report.json
