@@ -9,36 +9,7 @@ steps:
       gcloud storage cp ${_REPORT} ./report.json
 
   - id: process
-    name: us-west1-docker.pkg.dev/cloudy-build/vulctl/vulctl
-    entrypoint: /bin/bash
+    name: us-docker.pkg.dev/cloudy-tools/builders/vimp
     args:
-    - -c
     - |-
-      vulctl --source ${_DIGEST} \
-             --file ./report.json \
-             --format ${_FORMAT} \
-             --output ./data.csv \
-             --csv
-
-  - id: save
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    args:
-    - -c
-    - |-
-      sha=$(echo ${_DIGEST} | cut -d: -f2)
-      uri=gs://${_BUCKET}/$sha-${_FORMAT}.csv
-      echo "saving data to $uri"
-      gcloud storage cp ./data.csv $uri
-
-  - id: load
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    args:
-    - -c
-    - |-
-      bq load \
-        --source_format=CSV \
-        ${_DATASET} \
-        ./data.csv \
-        ./schema.json
+      --source ${_DIGEST} --file ./report.json --target ${_DATASET}
