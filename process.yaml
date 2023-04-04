@@ -11,5 +11,7 @@ steps:
   - id: process
     name: us-docker.pkg.dev/cloudy-tools/builders/vimp
     args:
-    - |
-      --source=${_DIGEST} --file=./report.json --target=${_DATASET}
+    - |-
+      --source=${_DIGEST}
+      --file=./report.json
+      --target=${_DATASET}
