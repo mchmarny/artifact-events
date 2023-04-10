@@ -14,29 +14,6 @@ steps:
       fi
       echo $(echo ${_DIGEST} | cut -d: -f2) > sha.txt
 
-  # snyk
-  - id: scan-snyk
-    name: docker.io/snyk/snyk:docker
-    waitFor:
-    - config
-    allowExitCodes: [0, 1]
-    args: ['snyk', 'container', 'test', '--app-vulns', '--json-file-output=snyk.json', '${_DIGEST}']
-    env:
-    - 'SNYK_TOKEN=${_SNYK_TOKEN}'
-
-  - id: save-snyk
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: /bin/bash
-    waitFor:
-    - config
-    - scan-snyk
-    args:
-    - -c
-    - |-
-      uri=gs://${_BUCKET}/$(cat sha.txt)-snyk.json
-      gcloud storage cp snyk.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"
-
   # grype
   - id: scan-grype
     name: docker.io/anchore/grype
@@ -55,7 +32,6 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-grype.json
       gcloud storage cp grype.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"
 
   # trivy
   - id: scan-trivy
@@ -75,4 +51,3 @@ steps:
     - |-
       uri=gs://${_BUCKET}/$(cat sha.txt)-trivy.json
       gcloud storage cp trivy.json $uri
-      gcloud pubsub topics publish image-scans --message=${_DIGEST} --attribute="file=$uri"
