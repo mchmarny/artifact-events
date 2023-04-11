@@ -3,7 +3,7 @@
 Collection of Google Container and Artifact Registry workflows
 
 * [Scan new GCR or AR image](./workflows/scan/README.md) for vulnerabilities and save resulting data in BigQuery
-* [Dispatch vulnerabilities found by Artifact Analyses](./workflows/vuln/README.md) as remediation tickets
+* [Dispatch vulnerabilities found by Artifact Analyses](./workflows/dispatch/README.md) into remediation systems
 
 ## disclaimer
 

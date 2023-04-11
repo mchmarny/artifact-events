@@ -22,3 +22,6 @@ cosign.*
 *.hcl
 .terraform
 *.backup
+
+# go
+vendor
