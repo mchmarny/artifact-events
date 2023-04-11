@@ -4,6 +4,15 @@ If enabled, Artifact Analysis (aka Container Analysis) will create Pub/Sub event
 
 > Note: these events do not fire for notes and occurrence created via Artifact Analysis API.
 
+Artifact Registry (AR) now also supports [remote repositories](https://cloud.google.com/artifact-registry/docs/repositories/remote-repo). This is basically a proxy to an upstream repo caches artifacts. You can create them for Docker Hub, Helm, dev language package like Maven or PiPI, or OS packages like Debian or RPM. 
+
+The need part is that any artifact you pull via that kind of repo in AR can also benefit from the vulnerability scanning. Vulnerability events discovered that way will also be published to the topic just like AR does for "local" artifacts. This allows you to have aggregated notifications of artifact vulnerabilities whether they reside in AR or in a remote repo. 
+
+GCP provides a number of ways in which you can process these events (Cloud Workflows, Cloud Build, Cloud Functions, etc.). In this walk-through we will overview:
+
+* [manual](#manual) - quick way to get a few of the events output by AA
+* [programmatic](#programmatic) - uses Cloud Function to dispatch AA events to Slack, Jira, REST API etc. 
+
 ## setup
 
 If you haven't already done so, start by enabling the Artifact Analysis and Container Scanning API 
@@ -13,51 +22,51 @@ gcloud services enable containeranalysis.googleapis.com --project $PROJECT_ID
 gcloud services enable containerscanning.googleapis.com --project $PROJECT_ID
 ```
 
-When enabled, Artifact Analysis API will automatically creates the Pub/Sub topics for both notes and occurrences. You can check if they exist using this command: 
+When enabled, Artifact Analysis API will automatically creates the Pub/Sub occurrences topic. You can check if it exists:
 
 ```shell
 gcloud pubsub topics list --project $PROJECT_ID
 ```
 
-The results should looks something like this:
+The results should include `container-analysis-occurrences-v1`. If these topics do not exist, you can create them yourself using the `gcloud pubsub topics create` command:
 
 ```shell
 name: projects/$PROJECT/topics/container-analysis-occurrences-v1
-name: projects/$PROJECT/topics/container-analysis-notes-v1
 ```
 
-> If these topics do not exist, you can create them yourself using the `gcloud pubsub topics create` command
+### manual
 
-Next create subscription on the `occurrences` topic:
+The quickest way to capture messages output by Artifact Analyses (AA) is to create subscription on the `container-analysis-occurrences-v1` topic:
 
 > The name doesn't matter. If you want, you can also create one for the notes topic.
 
 ```shell
-gcloud pubsub subscriptions create vulns --project $PROJECT_ID --topic container-analysis-occurrences-v1
+gcloud pubsub subscriptions create vulns \
+    --project $PROJECT_ID \
+    --topic container-analysis-occurrences-v1
 ```
-
-## test
 
 Now you will need to trigger the AA event:
 
-> Again, simplest way to do that is to push an existing image using [crane](https://github.com/michaelsauter/crane).
+> Simplest way to do that is to push an existing image using [crane](https://github.com/michaelsauter/crane).
 
 ```shell
-crane cp \
-     $REGION-docker.pkg.dev/$PROJECT/repo1/image \
-     $REGION-docker.pkg.dev/$PROJECT/repo2/image
+crane cp $FROM_IMAGE $TO_IMAGE
 ```
 
 Finally list the vulnerabilities that were discovered:
 
 ```shell
-gcloud pubsub subscriptions pull vulns --project $PROJECT_ID --auto-ack --limit 3 \
+gcloud pubsub subscriptions pull vulns \
+    --project $PROJECT_ID --auto-ack --limit 3 \
     --format="json(message.attributes, message.data.decode(\"base64\").decode(\"utf-8\"), message.messageId, message.publishTime)"
 ```
 
 > If the above command returns an empty array (`[]`), give it a few seconds and rerun it. The length of the delay will depend on the size of your image and the number of vulnerabilities.
 
-Each one of the vulnerabilities discovered by AA in your image will look something like this: 
+Each one of the vulnerabilities discovered by AA in your image will look something like this:
+
+> Note, there will be other kinds of messages (e.g. DISCOVERY), you can ignore these.
 
 ```json
 {
@@ -72,8 +81,6 @@ Each one of the vulnerabilities discovered by AA in your image will look somethi
     }
 }
 ```
-
-## details
 
 Once you have the id of the occurrence, you can use the Container Analysis REST API to get the details:
 
@@ -149,21 +156,20 @@ Either way, the response will look something like this:
 }
 ```
 
-## remote repos
 
-Here is the really cool part. AR supports [remote repositories](https://cloud.google.com/artifact-registry/docs/repositories/remote-repo) (preview). These repos are basically proxies to a upstream repo that acts as a caching proxy for an external public artifact repository. You can create them for Docker Hub, Helm, dev language package like Maven or PiPI, or OS packages like Debian or RPM. 
+## programmatic
 
-Any artifact you pull via the remote repository in AR will also benefit from the vulnerability scanning. And, events from the discovered vulnerabilities will be published to the topic just like we've demonstrated in the above example. This allows you to have aggregated notifications of artifact vulnerabilities whether they reside in AR or in a remote repo. 
+You can also instrument the entire process in Cloud Function. This example will dispatch each artifact vulnerability discovered by AA to a target sender (Slack channel, Jira API, custom API).
 
-
-## cloud functions
-
-You can also instrument the entire process in Cloud Function. Here is an example for forwarding each artifact vulnerability discovered by Artifact Analyses to Slack channel. 
-
-Start by creating a service account and grant that account the necessary roles: 
+Start by creating a service account:
 
 ```shell
 gcloud iam service-accounts create vuln-dispatcher
+```
+
+Next, grant that account the necessary roles (`roles/secretmanager.secretAccessor` to allow it to read secrets, and `roles/containeranalysis.occurrences.viewer` to allow it to access the AA API): 
+
+```shell
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:vuln-dispatcher@$PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/secretmanager.secretAccessor" \
@@ -174,21 +180,22 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --condition=None 
 ```
 
-Next, create a secret to store the Slack secrets:
+Next, create a secret to store your secret:
 
 ```shell
-gcloud secrets create slack --replication-policy=automatic
-echo -n "$SLACK_ACCESS_TOKEN" | \
-    gcloud secrets versions add slack --data-file=-
+gcloud secrets create vuln-dispatcher --replication-policy=automatic
+echo -n "secret-value" | gcloud secrets versions add vuln-dispatcher --data-file=-
 ```
 
-Now just capture the project number: 
+After that, capture the project number: 
 
 ```shell
-export PROJECT_NUMBER="$(gcloud projects describe ${PROJECT_ID} --format='get(projectNumber)')"
+export PROJECT_NUMBER="$(gcloud projects describe $PROJECT_ID --format='get(projectNumber)')"
 ```
 
-Finally, deploy the function itself:
+Finally, deploy the function itself (in this example, with configuration for Jira):
+
+> More details on the options available in `gcloud functions deploy` available [here](https://cloud.google.com/sdk/gcloud/reference/functions/deploy).
 
 ```shell
 gcloud functions deploy vuln-dispatcher \
@@ -196,16 +203,13 @@ gcloud functions deploy vuln-dispatcher \
     --region=$REGION \
     --runtime=go120 \
     --entry-point=Execute \
-    --set-env-vars="SLACK_CHANNEL_ID=$SLACK_CHANNEL_ID,SLACK_SECRET_PATH=/secrets/slack" \
     --trigger-event=providers/cloud.pubsub/eventTypes/topic.publish \
     --trigger-resource=container-analysis-occurrences-v1 \
-    --set-secrets="/secrets/slack=projects/$PROJECT_NUMBER/secrets/slack:latest" \
+    --set-secrets="/secrets/dispatcher=projects/$PROJECT_NUMBER/secrets/vuln-dispatcher:latest" \
     --service-account="vuln-dispatcher@$PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-Now whenever Container Analyses finds new vulnerability, the image reference URI, and the CVE along with few other metadata bits will be published to your Slack channel. 
-
-You can easily customize this code to any other targets by replacing the Slack `OccurrenceSender` in `slack/fn.go` with your own. 
+Now whenever Container Analyses finds new vulnerability, the image reference URI, and the CVE along with few other metadata bits will be published to your Slack channel. See [pkg/sender](./pkg/sender) for other dispatcher implementations or write your own and changing the `sender` variable in `slack/fn.go` to your implementation. 
 
 ## disclaimer
 
