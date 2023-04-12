@@ -56,8 +56,9 @@ func Sender(ctx context.Context, occ *aa.Occurrence) error {
 			Reporter: &j.User{
 				Name: "vulnerability-bot",
 			},
-			Description: fmt.Sprintf("%s - %s",
-				occ.Vulnerability.ShortDescription, occ.Vulnerability.Severity),
+			Description: fmt.Sprintf(
+				"Exposure: %s, Severity: %s, Project: %s, Registry: %s",
+				occ.Vulnerability.ShortDescription, occ.Vulnerability.Severity, occ.Project, occ.Registry),
 			Type: j.IssueType{
 				Name: "Bug",
 			},

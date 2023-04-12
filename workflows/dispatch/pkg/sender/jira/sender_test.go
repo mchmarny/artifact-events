@@ -3,6 +3,7 @@ package jira
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 var (
 	occJSON = []byte(`{
 		"name": "projects/cloudy-demos/occurrences/356d0419-453e-41e0-a652-c30a8fda45c4",
-		"resourceUri": "https://us-west1-docker.pkg.dev/cloudy-demos/test/$IMAGE@sha256:5ffd30269c7bde2e29453bb9b8d3618814b7034e37aef299e3c071acbb565911",
+		"resourceUri": "https://us-west1-docker.pkg.dev/cloudy-demos/test/image@sha256:5ffd30269c7bde2e29453bb9b8d3618814b7034e37aef299e3c071acbb565911",
 		"noteName": "projects/cloudy-demos/notes/CVE-2019-7577",
 		"kind": "VULNERABILITY",
 		"createTime": "2023-03-30T23:09:28.443028Z",
@@ -67,7 +68,12 @@ var (
 
 func TestJiraSender(t *testing.T) {
 	secretProvider = func() ([]byte, error) {
-		return []byte(os.Getenv("JIRA_TOKEN")), nil
+		return []byte(fmt.Sprintf(`{
+			"username": "%s",
+			"token": "%s",
+			"URL": "https://mchmarny.atlassian.net/"
+		}`, os.Getenv("JIRA_USERNAME"),
+			os.Getenv("JIRA_TOKEN"))), nil
 	}
 
 	var occ aa.Occurrence
