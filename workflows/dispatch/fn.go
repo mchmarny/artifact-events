@@ -23,6 +23,7 @@ var (
 	// uncomment the one you prefer
 	// sender OccurrenceSender = slack.Sender
 	// sender OccurrenceSender = jira.Sender
+	// sender OccurrenceSender = rest.Sender
 )
 
 // OccurrenceSender is a function that sends an occurrence to a specific.

@@ -184,7 +184,7 @@ Next, create a secret to store your secret:
 
 ```shell
 gcloud secrets create vuln-dispatcher --replication-policy=automatic
-echo -n "secret-value" | gcloud secrets versions add vuln-dispatcher --data-file=-
+echo -n "secret-config-value" | gcloud secrets versions add vuln-dispatcher --data-file=-
 ```
 
 After that, capture the project number: 
@@ -193,7 +193,21 @@ After that, capture the project number:
 export PROJECT_NUMBER="$(gcloud projects describe $PROJECT_ID --format='get(projectNumber)')"
 ```
 
-Finally, deploy the function itself (in this example, with configuration for Jira):
+Customize the included code to your needs. The [main entry point for the GCF function (fn.go)](./fn.go) has a variable which dictates what type of dispatcher will be used, set it to the one you need:
+
+```go
+var (
+	// default occurrence sender
+	sender OccurrenceSender = stdout.Sender
+
+	// uncomment the one you prefer
+	// sender OccurrenceSender = slack.Sender
+	// sender OccurrenceSender = jira.Sender
+	// sender OccurrenceSender = rest.Sender
+)
+```
+
+Finally, deploy the function itself (in this example, with configuration for Jira).
 
 > More details on the options available in `gcloud functions deploy` available [here](https://cloud.google.com/sdk/gcloud/reference/functions/deploy).
 
@@ -209,7 +223,7 @@ gcloud functions deploy vuln-dispatcher \
     --service-account="vuln-dispatcher@$PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-Now whenever Container Analyses finds new vulnerability, the image reference URI, and the CVE along with few other metadata bits will be published to your Slack channel. See [pkg/sender](./pkg/sender) for other dispatcher implementations or write your own and changing the `sender` variable in `slack/fn.go` to your implementation. 
+Now whenever Container Analyses finds new vulnerability, the image reference URI, and the CVE along with few other metadata bits will be published to your target system.
 
 ## disclaimer
 
