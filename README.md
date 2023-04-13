@@ -1,9 +1,9 @@
 # artifact-events
 
-Collection of Google Container and Artifact Registry workflows
+Collection of workflows based on Google Container and Artifact Registry events:
 
 * [Scan new GCR or AR image](./workflows/scan/README.md) for vulnerabilities and save resulting data in BigQuery
-* [Dispatch vulnerabilities found by Artifact Analyses](./workflows/dispatch/README.md) into remediation systems
+* [Dispatch vulnerabilities found by Artifact Analyses](./workflows/dispatch/README.md) to custom remediation systems (e.g. Jira), or chat service (e.g. Slack)
 
 ## disclaimer
 
