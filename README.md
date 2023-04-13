@@ -2,8 +2,8 @@
 
 Collection of workflows based on Google Container and Artifact Registry events:
 
-* [Scan new GCR or AR image](./workflows/scan/README.md) for vulnerabilities and save resulting data in BigQuery
-* [Dispatch vulnerabilities found by Artifact Analyses](./workflows/dispatch/README.md) to custom remediation systems (e.g. Jira), or chat service (e.g. Slack)
+* [Event on new GCR or AR image](./workflows/scan/README.md) - this example scans each new image for vulnerabilities and save resulting data into GCS bucket
+* [Event on vulnerabilities found by Artifact Analyses](./workflows/dispatch/README.md) - this example dispatch vulnerability information to custom remediation systems (e.g. Jira), or chat service (e.g. Slack)
 
 ## disclaimer
 
