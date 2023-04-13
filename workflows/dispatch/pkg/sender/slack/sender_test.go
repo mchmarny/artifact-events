@@ -1,4 +1,4 @@
-package jira
+package slack
 
 import (
 	"context"
@@ -10,14 +10,13 @@ import (
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
 )
 
-func TestJiraSender(t *testing.T) {
+func TestSlackSender(t *testing.T) {
 	secretProvider = func() ([]byte, error) {
 		return []byte(fmt.Sprintf(`{
-			"username": "%s",
-			"token": "%s",
-			"URL": "https://mchmarny.atlassian.net/"
-		}`, os.Getenv("JIRA_USERNAME"),
-			os.Getenv("JIRA_TOKEN"))), nil
+			"channel_id": "%s",
+			"token": "%s"
+		}`, os.Getenv("SLACK_CHANNEL"),
+			os.Getenv("SLACK_TOKEN"))), nil
 	}
 
 	b, err := os.ReadFile("../../../test.json")

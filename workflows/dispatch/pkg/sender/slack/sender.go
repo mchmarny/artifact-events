@@ -2,14 +2,25 @@ package slack
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/secret"
 	"github.com/pkg/errors"
 	s "github.com/slack-go/slack"
 )
+
+var (
+	secretProvider provider = secret.GetSecret
+)
+
+type provider func() ([]byte, error)
+
+type config struct {
+	ChannelID string `json:"channel_id"`
+	Token     string `json:"token"`
+}
 
 // Sender sends an occurrence to Slack.
 func Sender(ctx context.Context, occ *aa.Occurrence) error {
@@ -25,17 +36,17 @@ func Sender(ctx context.Context, occ *aa.Occurrence) error {
 		})
 	}
 
-	chID := os.Getenv("SLACK_CHANNEL_ID")
-	if chID == "" {
-		return errors.New("SLACK_CHANNEL_ID is not set")
-	}
-
-	b, err := secret.GetSecret()
+	b, err := secretProvider()
 	if err != nil {
 		return errors.Wrap(err, "failed to get secret")
 	}
 
-	api := s.New(string(b))
+	var conf config
+	if err := json.Unmarshal(b, &conf); err != nil {
+		return errors.Wrap(err, "failed to unmarshal secret")
+	}
+
+	api := s.New(conf.Token)
 	attachment := s.Attachment{
 		Pretext: "Vulnerability Alert",
 		Text: fmt.Sprintf("%s - %s",
@@ -46,13 +57,13 @@ func Sender(ctx context.Context, occ *aa.Occurrence) error {
 	}
 
 	if _, _, err := api.PostMessage(
-		chID,
+		conf.ChannelID,
 		s.MsgOptionAttachments(attachment),
 		s.MsgOptionAsUser(false),
 	); err != nil {
 		return errors.Wrapf(err,
 			"failed to post vulnerability for '%s' to channel: '%s'",
-			occ.ResourceUri, chID)
+			occ.ResourceUri, conf.ChannelID)
 	}
 
 	return nil

@@ -19,7 +19,7 @@ var (
 
 type provider func() ([]byte, error)
 
-type jiraConfig struct {
+type config struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 	URL      string `json:"url"`
@@ -36,7 +36,7 @@ func Sender(ctx context.Context, occ *aa.Occurrence) error {
 		return errors.Wrap(err, "failed to get secret")
 	}
 
-	var conf jiraConfig
+	var conf config
 	if err := json.Unmarshal(b, &conf); err != nil {
 		return errors.Wrap(err, "failed to unmarshal secret")
 	}
