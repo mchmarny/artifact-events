@@ -1,24 +1,15 @@
-package slack
+package scc
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
 	ca "google.golang.org/api/containeranalysis/v1"
 )
 
-func TestSlackSender(t *testing.T) {
-	secretProvider = func() ([]byte, error) {
-		return []byte(fmt.Sprintf(`{
-			"channel_id": "%s",
-			"token": "%s"
-		}`, os.Getenv("SLACK_CHANNEL"),
-			os.Getenv("SLACK_TOKEN"))), nil
-	}
-
+func TestSCCSender(t *testing.T) {
 	b, err := os.ReadFile("../../../test.json")
 	if err != nil {
 		t.Fatalf("Failed to read occurrence: %v", err)

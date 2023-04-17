@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/secret"
 	"github.com/pkg/errors"
+	ca "google.golang.org/api/containeranalysis/v1"
 )
 
 var (
@@ -27,7 +27,7 @@ type config struct {
 }
 
 // Sender sends an occurrence to custom REST endpoint.
-func Sender(ctx context.Context, occ *aa.Occurrence) error {
+func Sender(ctx context.Context, occ *ca.Occurrence) error {
 	if occ == nil {
 		return errors.New("occurrence is nil")
 	}

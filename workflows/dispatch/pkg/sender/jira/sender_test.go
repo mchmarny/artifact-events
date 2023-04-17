@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
+	ca "google.golang.org/api/containeranalysis/v1"
 )
 
 func TestJiraSender(t *testing.T) {
@@ -25,7 +25,7 @@ func TestJiraSender(t *testing.T) {
 		t.Fatalf("Failed to read occurrence: %v", err)
 	}
 
-	var occ aa.Occurrence
+	var occ ca.Occurrence
 	if err := json.Unmarshal(b, &occ); err != nil {
 		t.Fatalf("Failed to unmarshal occurrence: %v", err)
 	}

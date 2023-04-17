@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
+	ca "google.golang.org/api/containeranalysis/v1"
 )
 
 func TestRESTSender(t *testing.T) {
@@ -18,13 +18,13 @@ func TestRESTSender(t *testing.T) {
 		t.Fatalf("Failed to read occurrence: %v", err)
 	}
 
-	var occIn aa.Occurrence
+	var occIn ca.Occurrence
 	if err := json.Unmarshal(b, &occIn); err != nil {
 		t.Fatalf("Failed to unmarshal occurrence: %v", err)
 	}
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		var occOut aa.Occurrence
+		var occOut ca.Occurrence
 		if err := json.NewDecoder(req.Body).Decode(&occOut); err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return

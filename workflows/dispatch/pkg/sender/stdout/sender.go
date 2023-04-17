@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
+	ca "google.golang.org/api/containeranalysis/v1"
+
 	"github.com/pkg/errors"
 )
 
 // Sender marshals the occurrence to stdout.
-func Sender(ctx context.Context, occ *aa.Occurrence) error {
+func Sender(ctx context.Context, occ *ca.Occurrence) error {
 	if occ == nil {
 		return errors.New("occurrence is nil")
 	}

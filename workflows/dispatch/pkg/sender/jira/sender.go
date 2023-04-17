@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	j "github.com/andygrunwald/go-jira/v2/cloud"
-	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/aa"
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/secret"
 	"github.com/pkg/errors"
+	ca "google.golang.org/api/containeranalysis/v1"
 )
 
 var (
@@ -26,7 +26,7 @@ type config struct {
 }
 
 // Sender sends an occurrence to Jira.
-func Sender(ctx context.Context, occ *aa.Occurrence) error {
+func Sender(ctx context.Context, occ *ca.Occurrence) error {
 	if occ == nil {
 		return errors.New("occurrence is nil")
 	}
@@ -57,8 +57,8 @@ func Sender(ctx context.Context, occ *aa.Occurrence) error {
 				Name: "vulnerability-bot",
 			},
 			Description: fmt.Sprintf(
-				"Exposure: %s, Severity: %s, Project: %s, Registry: %s",
-				occ.Vulnerability.ShortDescription, occ.Vulnerability.Severity, occ.Project, occ.Registry),
+				"Exposure: %s, Severity: %s, Resource: %s",
+				occ.Vulnerability.ShortDescription, occ.Vulnerability.Severity, occ.ResourceUri),
 			Type: j.IssueType{
 				Name: "Bug",
 			},

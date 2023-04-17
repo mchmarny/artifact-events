@@ -10,6 +10,7 @@ import (
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/pubsub"
 	"github.com/mchmarny/artifact-events/workflows/dispatch/pkg/sender/stdout"
 	"github.com/pkg/errors"
+	ca "google.golang.org/api/containeranalysis/v1"
 )
 
 const (
@@ -27,7 +28,7 @@ var (
 )
 
 // OccurrenceSender is a function that sends an occurrence to a specific.
-type OccurrenceSender func(ctx context.Context, occ *aa.Occurrence) error
+type OccurrenceSender func(ctx context.Context, occ *ca.Occurrence) error
 
 // Execute is the entry point for the Cloud Function.
 func Execute(ctx context.Context, m pubsub.PubSubMessage) error {

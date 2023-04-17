@@ -1,34 +1,25 @@
 package aa
 
 import (
-	"strings"
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestResourceURLParsing(t *testing.T) {
-	valid := []string{
-		"https://gcr.io/project/image@sha256:123",
-		"https://gcr.io/project/image:v1.2.3",
-		"https://gcr.io/project/image",
-		"https://us-west1-docker.pkg.dev/project/repo/image@sha256:5ffd302f1b1b2f2",
-		"https://us-west1-docker.pkg.dev/project/repo/image:v1.2.3",
-		"https://us-west1-docker.pkg.dev/project/repo/image",
-		"https://gcr.io/project/image@sha256:123",
-		"https://gcr.io/project/image:v1.2.3",
-		"https://gcr.io/project/image",
-		"https://us-west1-docker.pkg.dev/project/repo/image@sha256:5ffd302f1b1b2f2",
-		"https://us-west1-docker.pkg.dev/project/repo/image:v1.2.3",
-		"https://us-west1-docker.pkg.dev/project/repo/image",
+func TestGetOccurrence(t *testing.T) {
+	list := []string{
+		"projects/cloudy-demos/occurrences/d61b51a7-6b67-4d8e-b048-a4bb88bd4121",
+		"projects/cloudy-demos/occurrences/679b1ad9-c24f-4fe3-a5f3-8ef8abac2b87",
+		"projects/cloudy-demos/occurrences/8d67732c-c722-4bde-9cf4-0535105828e8",
 	}
 
-	for i, v := range valid {
-		p, r, err := parseResourceURI(v)
-		assert.NoError(t, err, "uri[%d]: %s", i, v)
-		assert.Equal(t, "project", p, "uri[%d]: %s", i, v)
-		if !strings.HasPrefix(v, "https://gcr.io") {
-			assert.Equal(t, "repo", r, "uri[%d]: %s", i, v)
-		}
+	ctx := context.Background()
+
+	for i, v := range list {
+		o, err := GetOccurrence(ctx, v)
+		assert.Nil(t, err, "test %d: %s", i, err)
+		assert.NotNil(t, o, "test %d: %s", i, err)
+		assert.Equal(t, v, o.Name, "test %d: %s", i, err)
 	}
 }
